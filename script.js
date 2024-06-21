@@ -352,7 +352,7 @@ class ThreeApp {
      */
     const axesBarLength = 150;
     this.axesHelper = new THREE.AxesHelper(axesBarLength);
-    this.scene.add(this.axesHelper);
+    // this.scene.add(this.axesHelper);
 
 
     /**
