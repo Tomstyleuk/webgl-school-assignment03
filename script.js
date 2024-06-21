@@ -218,6 +218,19 @@ class ThreeApp {
     });
   }
 
+  loadCityImage(imageUrl) {
+    return new Promise((resolve, reject) => {
+      const textureLoader = new THREE.TextureLoader();
+      textureLoader.load(imageUrl, (texture) => {
+        resolve(texture);
+      }, undefined,
+        (error) => {
+          reject(error);
+        }
+      );
+    });
+  }
+
   airplainLoad() {
     return new Promise((resolve) => {
       const ObjLoader = new OBJLoader();
@@ -384,7 +397,7 @@ class ThreeApp {
    * @param {THREE.Font} font - Loaded font for text rendering
    */
   displayItems(font) {
-    citiesPoints.forEach((coords, i) => {
+    const imagePromises = citiesPoints.map((coords, i) => {
       const latitude = coords[0];
       const longitude = coords[1];
 
@@ -408,14 +421,13 @@ class ThreeApp {
       }
 
       // Display city image
-      const textureLoader = new THREE.TextureLoader();
       const imageUrl = `/images/${cityImages[i]}`;
       if (imageUrl) {
-        textureLoader.load(imageUrl, (texture) => {
-          const geometry = new THREE.PlaneGeometry(3, 3, 20, 20)
+        return this.loadCityImage(imageUrl).then((texture) => {
+          const geometry = new THREE.PlaneGeometry(3, 3, 20, 20);
           const imageMaterial = new THREE.MeshBasicMaterial({
             map: texture,
-            side: THREE.DoubleSide
+            side: THREE.DoubleSide,
           });
           const mesh = new THREE.Mesh(geometry, imageMaterial);
 
