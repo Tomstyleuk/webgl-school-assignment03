@@ -352,7 +352,7 @@ class ThreeApp {
      */
     const axesBarLength = 150;
     this.axesHelper = new THREE.AxesHelper(axesBarLength);
-    // this.scene.add(this.axesHelper);
+    this.scene.add(this.axesHelper);
 
 
     /**
@@ -407,14 +407,21 @@ class ThreeApp {
         const textGeometry = new TextGeometry(country, {
           font: font,
           size: 0.6,
-          height: 0.1,
+          height: 0.05
         });
         const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
         const textMesh = new THREE.Mesh(textGeometry, textMaterial);
 
         const position = this.translateGeoCoords(latitude, longitude, 105);
         textMesh.position.copy(position);
-        textMesh.rotation.set(0.2, ThreeApp.PI / 2, 0);
+
+        // 地球の中心から都市の位置までの方向ベクトルを計算
+        const direction = position.clone().normalize();
+        textMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
+
+        textMesh.rotateX(-Math.PI / 2);
+        textMesh.rotateY(Math.PI / 2);
+        textMesh.rotateZ(Math.PI / 2);
 
         this.scene.add(textMesh);
         this.earthGroup.add(textMesh);
@@ -424,23 +431,22 @@ class ThreeApp {
       const imageUrl = `/images/${cityImages[i]}`;
       if (imageUrl) {
         return this.loadCityImage(imageUrl).then((texture) => {
-          const geometry = new THREE.PlaneGeometry(3, 3, 20, 20);
+          const geometry = new THREE.PlaneGeometry(4, 4, 20, 20);
           const imageMaterial = new THREE.MeshBasicMaterial({
             map: texture,
             side: THREE.DoubleSide,
           });
           const mesh = new THREE.Mesh(geometry, imageMaterial);
 
-          const position = this.translateGeoCoords(latitude, longitude + 1, 108);
+          const position = this.translateGeoCoords(latitude, longitude + 1, 108.5);
           mesh.position.copy(position);
 
-          // Calculate rotation to face camera or other specific direction, e.g., make it face outward from the globe
           const direction = position.clone().normalize();
-          const axis = new THREE.Vector3(0, 1, 0).cross(direction).normalize();
-          const angle = Math.acos(new THREE.Vector3(0, 1, 0).dot(direction));
+          mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
 
-          mesh.quaternion.setFromAxisAngle(axis, angle);
-          mesh.rotateY(latitude < 0 ? ThreeApp.PI : 1.6); // Rotate if the latitude is in the southern hemisphere
+          mesh.rotateX(-Math.PI / 2);
+          mesh.rotateY(Math.PI / 2);
+          mesh.rotateZ(Math.PI / 2);
 
           this.scene.add(mesh);
           this.earthGroup.add(mesh);
@@ -478,7 +484,7 @@ class ThreeApp {
     this.controls.update();
 
     const time = this.clock.getElapsedTime();
-    const speed = time * 0.1;
+    const speed = time * 0.2;
 
     // 前フレームの飛行機の位置
     const prevPosition = this.airplaneObj.position.clone();
@@ -547,7 +553,7 @@ class ThreeApp {
     // 逆向きベクトルをAIRPLANE_CAMERA_DISTANCE分引き伸ばす。
     backwardVector.multiplyScalar(ThreeApp.AIRPLANE_CAMERA_DISTANCE);
     this.camera.position.copy(airplanePosition.clone().add(backwardVector));
-    this.camera.position.x -= 2
+    this.camera.position.y += 4
 
     // airplaneObjの現在の位置に向かって、原点から伸びるベクトルを単位化したもの
     const airplaneUpDirection = airplanePosition.clone().normalize();
