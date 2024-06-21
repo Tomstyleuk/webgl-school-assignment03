@@ -221,7 +221,7 @@ class ThreeApp {
   airplainLoad() {
     return new Promise((resolve) => {
       const ObjLoader = new OBJLoader();
-      const objPath = './public/model/airplane.obj';
+      const objPath = '/model/airplane.obj';
 
       ObjLoader.load(objPath, (object) => {
         this.airplaneObj = object
@@ -370,7 +370,7 @@ class ThreeApp {
   fontLoad() {
     return new Promise((resolve, reject) => {
       const fontLoader = new FontLoader();
-      fontLoader.load('./public/font/helvetiker_regular.typeface.json', function (font) {
+      fontLoader.load('/font/helvetiker_regular.typeface.json', function (font) {
         resolve(font);
       }, undefined, (error) => {
         reject(error);
